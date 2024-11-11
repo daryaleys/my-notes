@@ -16,20 +16,22 @@ defineProps<{ type: "icon-text" | "round" }>();
     line-height: 160%;
     color: var(--color-white);
     background-color: var(--color-green-light);
+    height: 56px;
     border-radius: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: 0.3s ease-in-out;
+    gap: 12px;
+    transition: 0.2s ease-in-out;
     transition-property: background-color;
 
     &.icon-text {
-        gap: 12px;
-        padding: 11px 24px 11px 23px;
+        padding: 0 24px;
     }
 
     &.round {
-        padding: 19px;
+        width: 56px;
+        padding: 0;
     }
 
     &:hover {

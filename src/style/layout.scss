@@ -7,9 +7,19 @@
 	--main-font: "Montserrat", sans-serif;
 
 	/*  colors */
-	--color-main: #00b3e3;
-	--color-background: #012833;
-	--color-text: #fff;
+	--color-dark: #0A1F38;
+	--color-dark-middle: #1B2F46;
+	--color-dark-light: #2F4056;
+	--color-gray: #9DA5AF;
+	--color-green-dark: #819400;
+	--color-green-middle: #97AB0D;
+	--color-green: #A5BB0C;
+	--color-green-light: #B1C909;
+	--color-white: #FFFFFF;
+
+	@media screen and (width <= 1366px) {
+		--block-max-width: 1206px;
+	}
 }
 
 html {
@@ -19,10 +29,15 @@ html {
 
 body {
 	font-family: var(--main-font);
-	background-color: var(--color-background);
+	background-color: var(--color-dark);
 	color: var(--color-text);
 
 	&._hidden {
 		overflow: hidden;
 	}
+}
+
+.container {
+	max-width: var(--block-max-width);
+	margin: 0 auto;
 }

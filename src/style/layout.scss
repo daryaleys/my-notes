@@ -1,0 +1,28 @@
+/* Main Site Layout */
+:root {
+    /* sizes */
+	--block-max-width: 1600px;
+
+	/* fonts */
+	--main-font: "Montserrat", sans-serif;
+
+	/*  colors */
+	--color-main: #00b3e3;
+	--color-background: #012833;
+	--color-text: #fff;
+}
+
+html {
+	scroll-behavior: smooth;
+	-webkit-tap-highlight-color: transparent;
+}
+
+body {
+	font-family: var(--main-font);
+	background-color: var(--color-background);
+	color: var(--color-text);
+
+	&._hidden {
+		overflow: hidden;
+	}
+}

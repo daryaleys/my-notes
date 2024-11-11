@@ -1,0 +1,108 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import InlineSvg from "vue-inline-svg";
+import showPasswordIcon from "/src/assets/icons/on-password.svg?url";
+import hidePasswordIcon from "/src/assets/icons/off-password.svg?url";
+
+defineProps<{ type: "email" | "password" | "text" | "textarea"; id: string; label: string; placeholder: string; error: string }>();
+const model = defineModel();
+
+const showPassword = ref<boolean>(false);
+</script>
+
+<template>
+    <div class="input-wrap">
+        <!-- label -->
+        <label :for="id">{{ label }}</label>
+
+        <!-- input -->
+        <textarea v-if="type === 'textarea'" :id :placeholder v-model="model"></textarea>
+
+        <div v-else-if="type === 'password'" class="password-wrap">
+            <input :type="showPassword ? 'text' : 'password'" :id :placeholder v-model="model" />
+            <button type="button" class="password-btn" @click="showPassword = !showPassword">
+                <inline-svg :src="showPassword ? hidePasswordIcon : showPasswordIcon" width="20" height="20"></inline-svg>
+            </button>
+        </div>
+
+        <input v-else :type :id :placeholder v-model="model" />
+
+        <!-- error -->
+        <span v-if="error" class="error">{{ error }}</span>
+    </div>
+</template>
+
+<style scoped>
+.input-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+label {
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 156%;
+    color: var(--color-gray);
+    padding: 0 24px;
+}
+
+input,
+textarea {
+    width: 100%;
+    border: 2px solid transparent;
+    outline: none;
+    border-radius: 36px;
+    padding: 22px 28px;
+    height: 72px;
+    font-family: var(--main-font);
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 156%;
+    color: var(--color-dark);
+    transition: border-color .3s ease-in-out;
+    
+    &::placeholder {
+        color: var(--color-gray);
+    }
+
+    &:hover, &:focus {
+        border: 2px solid var(--color-green-light);
+    }
+}
+
+textarea {
+    height: 168px;
+}
+
+.password-wrap {
+    width: 100%;
+    position: relative;
+}
+
+.password-btn {
+    position: absolute;
+    top: 26px;
+    right: 26px;
+    cursor: pointer;
+}
+
+.error {
+    padding: 0 24px;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 156%;
+    color: #ff7461;
+}
+
+@media screen and (width <= 1366px) {
+}
+
+@media screen and (width <= 1023px) {
+}
+
+@media screen and (width <= 767px) {
+}
+</style>

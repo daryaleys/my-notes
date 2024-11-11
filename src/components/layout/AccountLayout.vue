@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import InlineSvg from "vue-inline-svg";
-import NotesButton from "../UI/NotesButton.vue";
+import MyButton from "../UI/MyButton.vue";
 import addIcon from "/src/assets/icons/add.svg?url";
-import SingleNote from "../notes/SingleNote.vue";
+import SingleNote from "../UI/SingleNote.vue";
 
 const noteList = ref([
     {
@@ -49,9 +49,9 @@ const deleteNote = (id: number) => {
             <SingleNote v-for="note in noteList" :key="note.id" v-bind="note" @delete="deleteNote" />
         </div>
 
-        <NotesButton type="round" class="add-btn">
+        <MyButton btnType="round" class="add-btn" @click="$emit('openModal', 'addNote')">
             <inline-svg :src="addIcon" width="20" height="20" aria-hidden="true" class="user-icon"></inline-svg>
-        </NotesButton>
+        </MyButton>
     </div>
 </template>
 
@@ -91,7 +91,6 @@ const deleteNote = (id: number) => {
     .account__container {
         grid-template-columns: repeat(2, 1fr);
     }
-
 }
 
 @media screen and (width <= 1023px) {
@@ -102,7 +101,7 @@ const deleteNote = (id: number) => {
     .account__container {
         grid-template-columns: 1fr;
     }
-    
+
     .add-btn {
         right: 8px;
     }

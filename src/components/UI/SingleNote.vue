@@ -70,12 +70,6 @@ defineProps<{ id: number; title: string; content: string }>();
     color: var(--color-white);
 }
 
-@media screen and (width <= 1366px) {
-}
-
-@media screen and (width <= 1023px) {
-}
-
 @media screen and (width <= 767px) {
     .note {
         border-radius: 12px;

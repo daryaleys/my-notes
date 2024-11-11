@@ -1,9 +1,9 @@
 <script setup lang="ts">
-defineProps<{ type: "icon-text" | "round" }>();
+defineProps<{ btnType?: "round" }>();
 </script>
 
 <template>
-    <button class="btn" :class="type" @click="$emit('btnClick')">
+    <button class="btn" :class="btnType" @click="$emit('btnClick')">
         <slot />
     </button>
 </template>
@@ -22,12 +22,9 @@ defineProps<{ type: "icon-text" | "round" }>();
     align-items: center;
     justify-content: center;
     gap: 12px;
+    padding: 0 24px;
     transition: 0.2s ease-in-out;
     transition-property: background-color;
-
-    &.icon-text {
-        padding: 0 24px;
-    }
 
     &.round {
         width: 56px;

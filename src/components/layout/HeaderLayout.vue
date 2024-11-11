@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { onClickOutside } from "@vueuse/core";
-import NotesButton from "../UI/NotesButton.vue";
+import MyButton from "../UI/MyButton.vue";
 import InlineSvg from "vue-inline-svg";
 import logo from "/src/assets/logo.svg?url";
 import loginIcon from "/src/assets/icons/login.svg?url";
@@ -23,15 +23,15 @@ onClickOutside(dropdownTarget, () => (dropdownOpened.value = false));
                 <img :src="logo" alt="" class="logo-img" width="219" height="50" />
             </div>
 
-            <NotesButton type="icon-text" v-if="!isAccount">
+            <MyButton v-if="!isAccount" @btnClick="$emit('openModal', 'login')">
                 <inline-svg :src="loginIcon" width="34" height="34" aria-hidden="true"></inline-svg>
                 Вход
-            </NotesButton>
+            </MyButton>
 
-            <div class="user" v-else>
-                <span class="user-name">e-mail@mail.mail</span>
-                <button class="user-btn" @click="dropdownOpened = !dropdownOpened" ref="dropdownTarget">
-                    <inline-svg :src="userIcon" width="22" height="28" aria-hidden="true" class="user-icon"></inline-svg>
+            <div v-else class="user">
+                <span class="user__name">e-mail@mail.mail</span>
+                <button class="user__btn" @click="dropdownOpened = !dropdownOpened" ref="dropdownTarget">
+                    <inline-svg :src="userIcon" width="22" height="28" aria-hidden="true" class="user__icon"></inline-svg>
                     <Transition>
                         <a href="/logout" class="dropdown" v-if="dropdownOpened">Выйти</a>
                     </Transition>
@@ -66,7 +66,7 @@ onClickOutside(dropdownTarget, () => (dropdownOpened.value = false));
     gap: 12px;
 }
 
-.user-name {
+.user__name {
     font-weight: 400;
     font-size: 18px;
     line-height: 156%;
@@ -77,7 +77,7 @@ onClickOutside(dropdownTarget, () => (dropdownOpened.value = false));
     overflow: hidden;
 }
 
-.user-btn {
+.user__btn {
     position: relative;
     width: 56px;
     height: 56px;
@@ -101,6 +101,7 @@ onClickOutside(dropdownTarget, () => (dropdownOpened.value = false));
     font-size: 18px;
     line-height: 156%;
     color: var(--color-green-light);
+    transition: color 0.3s ease-in-out;
 
     &::after {
         content: "";
@@ -109,6 +110,10 @@ onClickOutside(dropdownTarget, () => (dropdownOpened.value = false));
         right: 20px;
         border: 9px solid transparent;
         border-bottom: 9px solid var(--color-dark-middle);
+    }
+
+    &:hover {
+        color: var(--color-white);
     }
 }
 
@@ -160,17 +165,17 @@ onClickOutside(dropdownTarget, () => (dropdownOpened.value = false));
         width: 75%;
     }
 
-    .user-name {
+    .user__name {
         display: block;
         font-size: 14px;
     }
 
-    .user-btn {
+    .user__btn {
         width: 36px;
         height: 36px;
     }
 
-    .user-icon {
+    .user__icon {
         width: 16px;
         height: auto;
     }

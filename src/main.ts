@@ -1,5 +1,8 @@
-import { createApp } from 'vue'
-import './main.scss'
-import App from './App.vue'
+import { createApp } from "vue";
+import "./main.scss";
+import App from "./App.vue";
+import axios from "axios";
 
-createApp(App).mount('#app')
+window.axios = axios;
+
+createApp(App).mount("#app");

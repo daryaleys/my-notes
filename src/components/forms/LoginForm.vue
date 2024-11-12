@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import MyForm from "../UI/MyForm.vue";
 import MyInput from "../UI/MyInput.vue";
-import { validateField } from "../../validation";
-import { type LoginForm } from "./formTypes";
+import { validateEmail, validatePassword } from "../../helpers/validation";
+import { type LoginForm } from "../../types/formTypes";
+import { sendRequest } from "../../helpers/requests";
+import { ResponseResult } from "../../types/requestTypes";
+import { setInfo } from "../../helpers/tokenMethods";
 
-const formValues: LoginForm = {
+const emit = defineEmits(['authorize', 'changeStep'])
+
+const formValues = reactive<LoginForm>({
     email: "",
     password: "",
-};
+});
 
-const formErrors = ref<LoginForm>({
+const formErrors = reactive<LoginForm>({
     email: "",
     password: "",
 });
@@ -18,20 +23,24 @@ const formErrors = ref<LoginForm>({
 const commonFormError = ref<string>("");
 
 const loginSubmit = () => {
-    console.log(formValues);
+    commonFormError.value = "";
 
-    // clear form errors
-    formErrors.value.email = "";
-    formErrors.value.password = "";
+    formErrors.email = validateEmail(formValues.email);
+    formErrors.password = validatePassword(formValues.password);
 
-    // check for new errors
-    const emailError = validateField(formValues.email, true, true);
-    const passwordError = validateField(formValues.password);
+    // check if all errors are empty
+    const isValid = Object.values(formErrors).every(item => item === '');
 
-    if (emailError || passwordError) {
-        formErrors.value.email = emailError;
-        formErrors.value.password = passwordError;
-        return;
+    if (isValid) {
+        sendRequest("/api/auth", "POST", false, formValues)
+            .then((result: ResponseResult) => {
+                if (result.hasError) {
+                    commonFormError.value = result.errorMessage ?? "Не удалось авторизоваться";
+                } else {
+                    setInfo(result.data.accessToken);
+                    emit('authorize', formValues.email);
+                }
+            });
     }
 };
 </script>
@@ -41,8 +50,10 @@ const loginSubmit = () => {
         <template #title>Вход в ваш аккаунт</template>
 
         <template #inputs>
-            <MyInput id="email" type="email" label="E-mail" placeholder="Введите значение" :error="formErrors.email" v-model="formValues.email" />
-            <MyInput id="password" type="password" label="Пароль" placeholder="Введите пароль" :error="formErrors.password" v-model="formValues.password" />
+            <MyInput id="email" type="email" label="E-mail" placeholder="Введите значение" :error="formErrors.email"
+                v-model="formValues.email" />
+            <MyInput id="password" type="password" label="Пароль" placeholder="Введите пароль"
+                :error="formErrors.password" v-model="formValues.password" />
         </template>
 
         <template #actions>

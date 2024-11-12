@@ -2,8 +2,8 @@
 import { ref } from "vue";
 import MyForm from "../UI/MyForm.vue";
 import MyInput from "../UI/MyInput.vue";
-import { validateField } from "../../validation";
-import { type AddNoteForm } from "./formTypes";
+import { validateField } from "../../helpers/validation";
+import { type AddNoteForm } from "../../types/formTypes";
 
 const formValues: AddNoteForm = {
     title: "",
@@ -41,8 +41,10 @@ const addNoteSubmit = () => {
         <template #title>Добавление заметки</template>
 
         <template #inputs>
-            <MyInput id="title" type="text" label="Название заметки" placeholder="Введите название" :error="formErrors.title" v-model="formValues.title" />
-            <MyInput id="comment" type="textarea" label="Текст заметки" placeholder="Введите текст" :error="formErrors.comment" v-model="formValues.comment" />
+            <MyInput id="title" type="text" label="Название заметки" placeholder="Введите название"
+                :error="formErrors.title" v-model="formValues.title" />
+            <MyInput id="comment" type="textarea" label="Текст заметки" placeholder="Введите текст"
+                :error="formErrors.comment" v-model="formValues.comment" />
         </template>
 
         <template #submit-button>Добавить</template>

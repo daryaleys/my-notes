@@ -1,44 +1,46 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import MyForm from "../UI/MyForm.vue";
 import MyInput from "../UI/MyInput.vue";
-import { validateField } from "../../validation";
-import { type RegisterForm } from "./formTypes";
+import { validateEmail, validatePassword, validatePasswordConfirmation } from "../../helpers/validation";
+import { type RegisterForm } from "../../types/formTypes";
+import { sendRequest } from "../../helpers/requests";
+import { ResponseResult } from "../../types/requestTypes";
 
-const formValues: RegisterForm = {
+const emit = defineEmits(['changeStep'])
+
+const formValues = reactive<RegisterForm>({
     email: "",
     password: "",
-    password_repeat: "",
-};
+    confirm_password: "",
+});
 
-const formErrors = ref<RegisterForm>({
+const formErrors = reactive<RegisterForm>({
     email: "",
     password: "",
-    password_repeat: ""
+    confirm_password: ""
 });
 
 const commonFormError = ref<string>("");
 
 const registerSubmit = () => {
-    console.log(formValues);
+    formErrors.email = validateEmail(formValues.email);
+    formErrors.password = validatePassword(formValues.password);
+    formErrors.confirm_password = validatePasswordConfirmation(formValues.password, formValues.confirm_password);
 
-    // clear form errors
-    formErrors.value.email = "";
-    formErrors.value.password = "";
-    formErrors.value.password_repeat = "";
+    // check if all errors are empty
+    const isValid = Object.values(formErrors).every(item => item === '');
 
-    // check for new errors
-    const emailError = validateField(formValues.email, true, true);
-    const passwordError = validateField(formValues.password);
-    const passwordRepeatError = validateField(formValues.password_repeat, true, false, formValues.password);
-
-    if (emailError || passwordError || passwordRepeatError) {
-        formErrors.value.email = emailError;
-        formErrors.value.password = passwordError;
-        formErrors.value.password_repeat = passwordRepeatError;
-        return;
+    if (isValid) {
+        sendRequest("/api/reg", "POST", false, formValues)
+            .then((result: ResponseResult) => {
+                if (result.hasError) {
+                    commonFormError.value = result.errorMessage ?? "Не удалось зарегистрироваться";
+                } else {
+                    emit("changeStep", "login")
+                }
+            })
     }
-
 };
 </script>
 
@@ -47,9 +49,12 @@ const registerSubmit = () => {
         <template #title>Регистрация</template>
 
         <template #inputs>
-            <MyInput id="email" type="email" label="E-mail" placeholder="Введите значение" :error="formErrors.email" v-model="formValues.email" />
-            <MyInput id="password" type="password" label="Пароль" placeholder="Введите пароль" :error="formErrors.password" v-model="formValues.password" />
-            <MyInput id="password-repeat" type="password" label="Пароль" placeholder="Повторите пароль" :error="formErrors.password_repeat" v-model="formValues.password_repeat" />
+            <MyInput id="email" type="email" label="E-mail" placeholder="Введите значение" :error="formErrors.email"
+                v-model="formValues.email" />
+            <MyInput id="password" type="password" label="Пароль" placeholder="Введите пароль"
+                :error="formErrors.password" v-model="formValues.password" />
+            <MyInput id="password-repeat" type="password" label="Пароль" placeholder="Повторите пароль"
+                :error="formErrors.confirm_password" v-model="formValues.confirm_password" />
         </template>
 
         <template #actions>

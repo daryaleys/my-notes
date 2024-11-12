@@ -7,7 +7,7 @@ import logo from "/src/assets/logo.svg?url";
 import loginIcon from "/src/assets/icons/login.svg?url";
 import userIcon from "/src/assets/icons/user.svg?url";
 
-defineProps<{ isAccount: boolean }>();
+defineProps<{ isAccount: boolean; userEmail: string }>();
 
 const dropdownOpened = ref<boolean>(false);
 
@@ -29,11 +29,13 @@ onClickOutside(dropdownTarget, () => (dropdownOpened.value = false));
             </MyButton>
 
             <div v-else class="user">
-                <span class="user__name">e-mail@mail.mail</span>
+                <span class="user__name">{{ userEmail }}</span>
                 <button class="user__btn" @click="dropdownOpened = !dropdownOpened" ref="dropdownTarget">
-                    <inline-svg :src="userIcon" width="22" height="28" aria-hidden="true" class="user__icon"></inline-svg>
+                    <inline-svg :src="userIcon" width="22" height="28" aria-hidden="true"
+                        class="user__icon"></inline-svg>
                     <Transition>
-                        <a href="/logout" class="dropdown" v-if="dropdownOpened">Выйти</a>
+                        <a href="/logout" class="dropdown" v-if="dropdownOpened"
+                            @click.prevent="$emit('unauthorize')">Выйти</a>
                     </Transition>
                 </button>
             </div>
@@ -129,19 +131,19 @@ onClickOutside(dropdownTarget, () => (dropdownOpened.value = false));
     transform: translateY(20px);
 }
 
-@media screen and (width <= 1366px) {
+@media screen and (width <=1366px) {
     .header {
         padding: 20px 80px;
     }
 }
 
-@media screen and (width <= 1023px) {
+@media screen and (width <=1023px) {
     .header {
         padding: 20px 40px;
     }
 }
 
-@media screen and (width <= 767px) {
+@media screen and (width <=767px) {
     .header {
         padding: 20px;
     }
@@ -152,7 +154,7 @@ onClickOutside(dropdownTarget, () => (dropdownOpened.value = false));
         &.account-logo {
             width: 37px;
 
-            & > .logo-img {
+            &>.logo-img {
                 width: 37px;
                 height: 35px;
                 object-fit: cover;

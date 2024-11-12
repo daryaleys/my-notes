@@ -1,0 +1,34 @@
+import { RequestParams, ResponseResult } from "../types/requestTypes";
+import { getInfo } from "./tokenMethods";
+
+const baseURL = "https://dist.nd.ru";
+
+export const sendRequest = async (endpoint: string, method: string, useAuth: boolean, body?: any): Promise<ResponseResult> => {
+	const request: RequestParams = {
+		url: endpoint,
+		method: method,
+		baseURL: baseURL,
+		data: body,
+	};
+
+	if (useAuth) {
+		const token = getInfo();
+		request.headers = { Authorization: "Bearer " + token };
+	}
+
+	const result: ResponseResult = {
+		hasError: false,
+	};
+
+	await axios(request)
+		.then((response) => {
+			result.data = response.data;
+		})
+		.catch((error) => {
+			const message = error.response.data.message;
+			result.hasError = true;
+			result.errorMessage = typeof message === "string" ? message : message[0];
+		});
+
+	return result;
+};

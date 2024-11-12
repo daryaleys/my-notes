@@ -10,7 +10,6 @@ defineProps<{ btnType?: "round" }>();
 
 <style scoped lang="scss">
 .btn {
-    font-family: var(--main-font);
     font-weight: 500;
     font-size: 20px;
     line-height: 160%;

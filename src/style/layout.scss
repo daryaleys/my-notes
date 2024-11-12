@@ -38,6 +38,11 @@ body {
 	}
 }
 
+button,
+input {
+	font-family: var(--main-font);
+}
+
 .container {
 	max-width: var(--block-max-width);
 	margin: 0 auto;

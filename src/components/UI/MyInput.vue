@@ -72,7 +72,6 @@ textarea {
     border-radius: 36px;
     padding: 22px 28px;
     height: 72px;
-    font-family: var(--main-font);
     font-weight: 400;
     font-size: 18px;
     line-height: 156%;

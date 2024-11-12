@@ -60,7 +60,6 @@ defineProps<{ formError?: string }>();
     }
 
     &:global(button) {
-        font-family: var(--font-family);
         font-weight: 700;
         font-size: 18px;
         line-height: 156%;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ModelRef, ref } from "vue";
 import InlineSvg from "vue-inline-svg";
 import showPasswordIcon from "/src/assets/icons/on-password.svg?url";
 import hidePasswordIcon from "/src/assets/icons/off-password.svg?url";
@@ -14,7 +14,7 @@ interface InputProps {
 }
 defineProps<InputProps>();
 
-const model = defineModel();
+const model: ModelRef<string | undefined> = defineModel();
 
 const showPassword = ref<boolean>(false);
 </script>
@@ -38,7 +38,7 @@ const showPassword = ref<boolean>(false);
         <input v-else :type :id :placeholder v-model="model" :maxlength />
 
         <!-- error and length -->
-        <div class="bottom">
+        <div class="bottom" v-if="error || maxlength">
             <span v-if="error" class="error">{{ error }}</span>
             <span v-if="maxlength" class="input-length">
                 {{ (model as string).length }}/{{ maxlength }}

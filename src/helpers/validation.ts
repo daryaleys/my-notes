@@ -1,19 +1,3 @@
-export const validateField = (fieldValue: string, required: boolean = true, checkEmail: boolean = false, compareTo: string | null = null, minLength: number | null = null, maxLength: number | null = null) => {
-	let result = "";
-
-	if (required && !fieldValue) {
-		result = "Поле обязательно для заполнения";
-	} else if (compareTo && fieldValue !== compareTo) {
-		result = "Пароли не совпадают";
-	} else if (checkEmail && !emailRegex.test(fieldValue)) {
-		result = "Некорректный e-mail";
-	} else if (minLength && fieldValue.length < minLength) {
-		result = "Поле должно содержать не менее 4 символов";
-	}
-
-	return result;
-};
-
 export const validateEmail = (email: string): string => {
 	let result = "";
 

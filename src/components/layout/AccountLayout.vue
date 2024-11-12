@@ -7,14 +7,16 @@ import { Note } from "../../types/noteTypes";
 import { sendRequest } from "../../helpers/requests";
 import { ResponseResult } from "../../types/requestTypes";
 
-const emit = defineEmits(['openModal', 'deleteNote'])
+const emit = defineEmits(['openModal', 'deleteNote', 'authorizationRequired'])
 
 defineProps<{ noteList: Note[], getNotesError: string }>();
 
 const deleteNote = (id: number) => {
     sendRequest(`/api/notes/${id}`, "DELETE", true)
         .then((result: ResponseResult) => {
-            if (!result.hasError) {
+            if (result.status === 401) {
+                emit('authorizationRequired');
+            } else if (!result.hasError) {
                 emit('deleteNote', id);
             }
         })

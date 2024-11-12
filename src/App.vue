@@ -42,7 +42,9 @@ const getUser = () => {
 const getUserNotes = () => {
     sendRequest("/api/notes", "GET", true)
         .then((result: ResponseResult) => {
-            if (!result.hasError && result.data) {
+            if (result.status === 401) {
+                removeUser();
+            } else if (!result.hasError && result.data) {
                 userNotes.value = result.data as Note[];
             } else {
                 getNotesError.value = "Не удалось загрузить заметки. Пожалуйста, попробуйте обновить страницу"
@@ -53,6 +55,7 @@ const getUserNotes = () => {
 const removeUser = () => {
     sendRequest("/api/auth", "DELETE", true)
         .then(() => {
+            modalOpened.value = false;
             isAccount.value = false;
             removeInfo();
         })
@@ -83,13 +86,13 @@ onMounted(() => {
     <HeaderLayout :isAccount :userEmail @openModal="openModal($event)" @unauthorize="removeUser" />
 
     <MainLayout v-if="!isAccount" />
-    <AccountLayout v-else @openModal="openModal($event)" :noteList="userNotes" :getNotesError
-        @deleteNote="deleteNote" />
+    <AccountLayout v-else @openModal="openModal($event)" :noteList="userNotes" :getNotesError @deleteNote="deleteNote"
+        @authorizationRequired="removeUser" />
 
     <MyModal v-model="modalOpened">
         <LoginForm v-if="modalContent === 'login'" @changeStep="openModal($event)" @authorize="goToAccount" />
         <RegisterForm v-else-if="modalContent === 'register'" @changeStep="openModal($event)" />
-        <AddNoteForm v-else-if="modalContent === 'addNote'" @addNote="addNote" />
+        <AddNoteForm v-else-if="modalContent === 'addNote'" @addNote="addNote" @authorizationRequired="removeUser" />
     </MyModal>
 </template>
 

@@ -1,55 +1,37 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
 import InlineSvg from "vue-inline-svg";
 import MyButton from "../UI/MyButton.vue";
 import addIcon from "/src/assets/icons/add.svg?url";
 import SingleNote from "../UI/SingleNote.vue";
+import { Note } from "../../types/noteTypes";
+import { sendRequest } from "../../helpers/requests";
+import { ResponseResult } from "../../types/requestTypes";
 
-const noteList = ref([
-    {
-        id: 1,
-        title: "Заметка 1",
-        content: "А также явные признаки победы институционализации могут быть объединены в целые кластеры себе подобных.",
-    },
-    {
-        id: 2,
-        title: "Заметка 1",
-        content:
-            "Не следует, однако, забывать, что базовый вектор развития предопределяет высокую востребованность позиций, занимаемых участниками в отношении поставленных задач. Вот вам яркий пример современных тенденций — повышение уровня гражданского сознания требует анализа переосмысления внешнеэкономических политик.",
-    },
-    {
-        id: 3,
-        title: "Заметка 1",
-        content: "А также явные признаки победы институционализации могут быть объединены в целые кластеры себе подобных.",
-    },
-    {
-        id: 4,
-        title: "Пример заголовока заметки в две строчки",
-        content: "А также явные признаки победы институционализации могут быть объединены в целые кластеры себе подобных.",
-    },
-    {
-        id: 5,
-        title: "Заголовок",
-        content: "А также явные признаки победы институционализации могут быть объединены в целые кластеры себе подобных.",
-    },
-]);
+const emit = defineEmits(['openModal', 'deleteNote'])
 
-onMounted(() => {
-    // запрос заметок пользователя
-});
+defineProps<{ noteList: Note[], getNotesError: string }>();
 
 const deleteNote = (id: number) => {
-    console.log(id);
-};
+    sendRequest(`/api/notes/${id}`, "DELETE", true)
+        .then((result: ResponseResult) => {
+            if (!result.hasError) {
+                emit('deleteNote', id);
+            }
+        })
+}
 </script>
 
 <template>
     <div class="account">
-        <div class="container account__container">
-            <SingleNote v-for="note in noteList" :key="note.id" v-bind="note" @delete="deleteNote" />
+        <h3 v-if="getNotesError" class="account__error" v-text="getNotesError"></h3>
+
+        <div v-else class="container account__container">
+            <TransitionGroup>
+                <SingleNote v-for="note in noteList" :key="note.id" v-bind="note" @delete="deleteNote" />
+            </TransitionGroup>
         </div>
 
-        <MyButton btnType="round" class="add-btn" @click="$emit('openModal', 'addNote')">
+        <MyButton btnType="round" class="account__add-btn" @click="$emit('openModal', 'addNote')">
             <inline-svg :src="addIcon" width="20" height="20" aria-hidden="true" class="user-icon"></inline-svg>
         </MyButton>
     </div>
@@ -66,14 +48,31 @@ const deleteNote = (id: number) => {
     gap: 40px;
 }
 
-.add-btn {
+.account__add-btn {
     position: fixed;
     bottom: 40px;
     right: 40px;
     box-shadow: 0 15px 46px -10px rgba(0, 0, 0, 0.6);
 }
 
-@media screen and (width <= 1366px) {
+.account__error {
+    font-weight: 600;
+    font-size: 32px;
+    line-height: 150%;
+    color: var(--color-error);
+}
+
+.v-enter-active,
+.v-leave-active {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.v-enter-from,
+.v-leave-to {
+    opacity: 0;
+}
+
+@media screen and (width <=1366px) {
     .account {
         padding: 40px 80px;
     }
@@ -82,18 +81,18 @@ const deleteNote = (id: number) => {
         gap: 20px;
     }
 
-    .add-btn {
+    .account__add-btn {
         right: 12px;
     }
 }
 
-@media screen and (width <= 1200px) {
+@media screen and (width <=1200px) {
     .account__container {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media screen and (width <= 1023px) {
+@media screen and (width <=1023px) {
     .account {
         padding: 40px;
     }
@@ -102,12 +101,12 @@ const deleteNote = (id: number) => {
         grid-template-columns: 1fr;
     }
 
-    .add-btn {
+    .account__add-btn {
         right: 8px;
     }
 }
 
-@media screen and (width <= 767px) {
+@media screen and (width <=767px) {
     .account {
         padding: 20px;
     }

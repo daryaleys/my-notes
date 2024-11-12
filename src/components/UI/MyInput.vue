@@ -4,7 +4,16 @@ import InlineSvg from "vue-inline-svg";
 import showPasswordIcon from "/src/assets/icons/on-password.svg?url";
 import hidePasswordIcon from "/src/assets/icons/off-password.svg?url";
 
-defineProps<{ type: "email" | "password" | "text" | "textarea"; id: string; label: string; placeholder: string; error: string }>();
+interface InputProps {
+    type: "email" | "password" | "text" | "textarea";
+    id: string;
+    label: string;
+    placeholder: string;
+    maxlength?: number,
+    error: string
+}
+defineProps<InputProps>();
+
 const model = defineModel();
 
 const showPassword = ref<boolean>(false);
@@ -16,19 +25,25 @@ const showPassword = ref<boolean>(false);
         <label :for="id">{{ label }}</label>
 
         <!-- input -->
-        <textarea v-if="type === 'textarea'" :id :placeholder v-model="model"></textarea>
+        <textarea v-if="type === 'textarea'" :id :placeholder v-model="model" :maxlength></textarea>
 
         <div v-else-if="type === 'password'" class="password-wrap">
-            <input :type="showPassword ? 'text' : 'password'" :id :placeholder v-model="model" />
+            <input :type="showPassword ? 'text' : 'password'" :id :placeholder v-model="model" :maxlength />
             <button type="button" class="password-btn" @click="showPassword = !showPassword">
-                <inline-svg :src="showPassword ? hidePasswordIcon : showPasswordIcon" width="20" height="20"></inline-svg>
+                <inline-svg :src="showPassword ? hidePasswordIcon : showPasswordIcon" width="20"
+                    height="20"></inline-svg>
             </button>
         </div>
 
-        <input v-else :type :id :placeholder v-model="model" />
+        <input v-else :type :id :placeholder v-model="model" :maxlength />
 
-        <!-- error -->
-        <span v-if="error" class="error">{{ error }}</span>
+        <!-- error and length -->
+        <div class="bottom">
+            <span v-if="error" class="error">{{ error }}</span>
+            <span v-if="maxlength" class="input-length">
+                {{ (model as string).length }}/{{ maxlength }}
+            </span>
+        </div>
     </div>
 </template>
 
@@ -63,12 +78,13 @@ textarea {
     line-height: 156%;
     color: var(--color-dark);
     transition: border-color .3s ease-in-out;
-    
+
     &::placeholder {
         color: var(--color-gray);
     }
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
         border: 2px solid var(--color-green-light);
     }
 }
@@ -89,20 +105,35 @@ textarea {
     cursor: pointer;
 }
 
-.error {
+.bottom {
+    width: 100%;
     padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.error {
     font-weight: 400;
     font-size: 18px;
     line-height: 156%;
-    color: #ff7461;
+    color: var(--color-error);
 }
 
-@media screen and (width <= 1366px) {
+.input-length {
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 156%;
+    text-align: right;
+    color: var(--color-gray);
+    margin-left: auto;
 }
 
-@media screen and (width <= 1023px) {
-}
 
-@media screen and (width <= 767px) {
-}
+@media screen and (width <=1366px) {}
+
+@media screen and (width <=1023px) {}
+
+@media screen and (width <=767px) {}
 </style>

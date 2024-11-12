@@ -18,6 +18,7 @@ export const sendRequest = async (endpoint: string, method: string, useAuth: boo
 
 	const result: ResponseResult = {
 		hasError: false,
+		status: 200,
 	};
 
 	await axios(request)
@@ -27,6 +28,7 @@ export const sendRequest = async (endpoint: string, method: string, useAuth: boo
 		.catch((error) => {
 			const message = error.response.data.message;
 			result.hasError = true;
+			result.status = error.status;
 			result.errorMessage = typeof message === "string" ? message : message[0];
 		});
 

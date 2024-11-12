@@ -82,14 +82,14 @@ defineProps<{ formError?: string }>();
     font-weight: 400;
     font-size: 18px;
     line-height: 156%;
-    color: #ff7461;
+    color: var(--color-error);
     border-radius: 24px;
     padding: 8px 20px;
     background: rgba(255, 116, 97, 0.1);
     margin-top: -20px;
 }
 
-@media screen and (width <= 767px) {
+@media screen and (width <=767px) {
     .form {
         gap: 28px;
     }

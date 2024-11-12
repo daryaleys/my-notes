@@ -1,37 +1,50 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import MyForm from "../UI/MyForm.vue";
 import MyInput from "../UI/MyInput.vue";
-import { validateField } from "../../helpers/validation";
 import { type AddNoteForm } from "../../types/formTypes";
+import { sendRequest } from "../../helpers/requests";
+import { ResponseResult } from "../../types/requestTypes";
 
-const formValues: AddNoteForm = {
-    title: "",
-    comment: "",
-};
+const emit = defineEmits(['addNote', 'changeStep'])
 
-const formErrors = ref<AddNoteForm>({
+const formValues = reactive<AddNoteForm>({
     title: "",
-    comment: "",
+    content: "",
+});
+
+const formErrors = reactive<AddNoteForm>({
+    title: "",
+    content: "",
 });
 
 const commonFormError = ref<string>("");
 
 const addNoteSubmit = () => {
-    console.log(formValues);
-
     // clear form errors
-    formErrors.value.title = "";
-    formErrors.value.comment = "";
+    commonFormError.value = "";
+    formErrors.title = "";
+    formErrors.content = "";
 
-    // check for new errors
-    const titleError = validateField(formValues.title);
-    const commentError = validateField(formValues.comment);
+    if (!formValues.title) {
+        formErrors.title = "Заголовок не может быть пустым";
+    }
+    if (!formValues.content) {
+        formErrors.content = "Описание не может быть пустым";
+    }
 
-    if (titleError || commentError) {
-        formErrors.value.title = titleError;
-        formErrors.value.comment = commentError;
-        return;
+    // check if all errors are empty
+    const isValid = Object.values(formErrors).every(item => item === '');
+
+    if (isValid) {
+        sendRequest("/api/notes", "POST", true, formValues)
+            .then((result: ResponseResult) => {
+                if (result.hasError) {
+                    commonFormError.value = result.errorMessage ?? "Не удалось авторизоваться";
+                } else {
+                    emit('addNote', result.data);
+                }
+            });
     }
 };
 </script>
@@ -42,9 +55,9 @@ const addNoteSubmit = () => {
 
         <template #inputs>
             <MyInput id="title" type="text" label="Название заметки" placeholder="Введите название"
-                :error="formErrors.title" v-model="formValues.title" />
-            <MyInput id="comment" type="textarea" label="Текст заметки" placeholder="Введите текст"
-                :error="formErrors.comment" v-model="formValues.comment" />
+                :error="formErrors.title" :maxlength="100" v-model="formValues.title" />
+            <MyInput id="content" type="textarea" label="Текст заметки" placeholder="Введите текст"
+                :error="formErrors.content" :maxlength="500" v-model="formValues.content" />
         </template>
 
         <template #submit-button>Добавить</template>

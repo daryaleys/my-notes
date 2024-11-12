@@ -13,5 +13,5 @@ export type RegisterForm = {
 
 export type AddNoteForm = {
 	title: string;
-	comment: string;
+	content: string;
 };

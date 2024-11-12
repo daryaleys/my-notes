@@ -8,40 +8,49 @@ import LoginForm from "./components/forms/LoginForm.vue";
 import RegisterForm from "./components/forms/RegisterForm.vue";
 import AddNoteForm from "./components/forms/AddNoteForm.vue";
 import { type ResponseResult } from "./types/requestTypes";
+import { type Note } from "./types/noteTypes";
 import { formContent } from "./types/formTypes";
 import { sendRequest } from "./helpers/requests";
 import { removeInfo } from "./helpers/tokenMethods";
 
 const isAccount = ref<boolean>(false);
 const userEmail = ref<string>("");
+const userNotes = ref<Note[]>([]);
+const getNotesError = ref<string>("");
+
 const modalOpened = ref<boolean>(false);
 const modalContent = ref<(typeof formContent)[number]>("login");
 
 const openModal = (step: (typeof formContent)[number]) => {
     if (formContent.includes(step)) {
         modalContent.value = step;
-        if (!modalOpened.value) modalOpened.value = true;
+        modalOpened.value = true;
     }
 };
 
-const checkUser = () => {
+const getUser = () => {
     sendRequest("/api/auth", "GET", true)
         .then((result: ResponseResult) => {
-            if (result.hasError) {
-                removeInfo();
+            if (!result.hasError && result.data && result.data.email) {
+                goToAccount(<string>result.data.email);
             } else {
-                authorize(result.data.email);
+                removeInfo();
             }
         });
 }
 
-const authorize = (email: string) => {
-    modalOpened.value = false;
-    userEmail.value = email;
-    isAccount.value = true;
+const getUserNotes = () => {
+    sendRequest("/api/notes", "GET", true)
+        .then((result: ResponseResult) => {
+            if (!result.hasError && result.data) {
+                userNotes.value = result.data as Note[];
+            } else {
+                getNotesError.value = "Не удалось загрузить заметки. Пожалуйста, попробуйте обновить страницу"
+            }
+        });
 }
 
-const unauthorize = () => {
+const removeUser = () => {
     sendRequest("/api/auth", "DELETE", true)
         .then(() => {
             isAccount.value = false;
@@ -49,21 +58,38 @@ const unauthorize = () => {
         })
 }
 
+const goToAccount = (email: string) => {
+    modalOpened.value = false;
+    isAccount.value = true;
+    userEmail.value = email;
+    getUserNotes();
+}
+
+const addNote = (note: Note) => {
+    modalOpened.value = false;
+    userNotes.value.push(note);
+}
+
+const deleteNote = (id: number) => {
+    userNotes.value = userNotes.value.filter((note) => note.id !== id);
+}
+
 onMounted(() => {
-    checkUser();
+    getUser();
 })
 </script>
 
 <template>
-    <HeaderLayout :isAccount :userEmail @openModal="openModal($event)" @unauthorize="unauthorize" />
+    <HeaderLayout :isAccount :userEmail @openModal="openModal($event)" @unauthorize="removeUser" />
 
     <MainLayout v-if="!isAccount" />
-    <AccountLayout v-else @openModal="openModal($event)" />
+    <AccountLayout v-else @openModal="openModal($event)" :noteList="userNotes" :getNotesError
+        @deleteNote="deleteNote" />
 
     <MyModal v-model="modalOpened">
-        <LoginForm v-if="modalContent === 'login'" @changeStep="openModal($event)" @authorize="authorize" />
+        <LoginForm v-if="modalContent === 'login'" @changeStep="openModal($event)" @authorize="goToAccount" />
         <RegisterForm v-else-if="modalContent === 'register'" @changeStep="openModal($event)" />
-        <AddNoteForm v-else-if="modalContent === 'addNote'" />
+        <AddNoteForm v-else-if="modalContent === 'addNote'" @addNote="addNote" />
     </MyModal>
 </template>
 

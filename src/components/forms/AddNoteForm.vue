@@ -6,7 +6,7 @@ import { type AddNoteForm } from "../../types/formTypes";
 import { sendRequest } from "../../helpers/requests";
 import { ResponseResult } from "../../types/requestTypes";
 
-const emit = defineEmits(['addNote', 'changeStep', 'authorizationRequired'])
+const emit = defineEmits(['addNote', 'changeStep'])
 
 const formValues = reactive<AddNoteForm>({
     title: "",
@@ -39,9 +39,7 @@ const addNoteSubmit = () => {
     if (isValid) {
         sendRequest("/api/notes", "POST", true, formValues)
             .then((result: ResponseResult) => {
-                if (result.status === 401) {
-                    emit('authorizationRequired');
-                } else if (result.hasError) {
+                if (result.hasError) {
                     commonFormError.value = result.errorMessage ?? "Не удалось создать заметку";
                 } else {
                     emit('addNote', result.data);

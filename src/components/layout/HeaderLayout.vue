@@ -6,36 +6,47 @@ import InlineSvg from "vue-inline-svg";
 import logo from "/src/assets/logo.svg?url";
 import loginIcon from "/src/assets/icons/login.svg?url";
 import userIcon from "/src/assets/icons/user.svg?url";
+import { userInfoStore } from "../../store";
+import { sendRequest } from "../../helpers/requests";
+import { removeInfo } from "../../helpers/tokenMethods";
 
-defineProps<{ isAccount: boolean; userEmail: string }>();
+const userStore = userInfoStore();
 
 const dropdownOpened = ref<boolean>(false);
 
 /* close drop down on click outside */
 const dropdownTarget = ref(null);
 onClickOutside(dropdownTarget, () => (dropdownOpened.value = false));
+
+const signOut = () => {
+    sendRequest("/api/auth", "DELETE", true)
+        .then(() => {
+            userStore.userInfo = null;
+            removeInfo();
+        })
+}
 </script>
 
 <template>
     <header class="header">
         <div class="container header__container">
-            <div class="logo" :class="{ 'account-logo': isAccount }">
+            <div class="logo" :class="{ 'account-logo': userStore.userInfo }">
                 <img :src="logo" alt="" class="logo-img" width="219" height="50" />
             </div>
 
-            <MyButton v-if="!isAccount" @btnClick="$emit('openModal', 'login')">
+            <MyButton v-if="!userStore.userInfo" @btnClick="$emit('openModal', 'login')">
                 <inline-svg :src="loginIcon" width="34" height="34" aria-hidden="true"></inline-svg>
                 Вход
             </MyButton>
 
             <div v-else class="user">
-                <span class="user__name">{{ userEmail }}</span>
+                <span class="user__name">{{ userStore.userInfo.email }}</span>
                 <button class="user__btn" @click="dropdownOpened = !dropdownOpened" ref="dropdownTarget">
                     <inline-svg :src="userIcon" width="22" height="28" aria-hidden="true"
                         class="user__icon"></inline-svg>
                     <Transition>
                         <a href="/logout" class="dropdown" v-if="dropdownOpened"
-                            @click.prevent="$emit('unauthorize')">Выйти</a>
+                            @click.prevent="signOut">Выйти</a>
                     </Transition>
                 </button>
             </div>

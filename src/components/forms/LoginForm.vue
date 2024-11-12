@@ -8,7 +8,7 @@ import { sendRequest } from "../../helpers/requests";
 import { ResponseResult } from "../../types/requestTypes";
 import { setInfo } from "../../helpers/tokenMethods";
 
-const emit = defineEmits(['authorize', 'changeStep'])
+const emit = defineEmits(["changeStep", "loginSuccess"]);
 
 const formValues = reactive<LoginForm>({
     email: "",
@@ -29,18 +29,17 @@ const loginSubmit = () => {
     formErrors.password = validatePassword(formValues.password);
 
     // check if all errors are empty
-    const isValid = Object.values(formErrors).every(item => item === '');
+    const isValid = Object.values(formErrors).every((item) => item === "");
 
     if (isValid) {
-        sendRequest("/api/auth", "POST", false, formValues)
-            .then((result: ResponseResult) => {
-                if (result.hasError) {
-                    commonFormError.value = result.errorMessage ?? "Не удалось авторизоваться";
-                } else {
-                    setInfo(result.data.accessToken);
-                    emit('authorize', formValues.email);
-                }
-            });
+        sendRequest("/api/auth", "POST", false, formValues).then((result: ResponseResult) => {
+            if (result.hasError) {
+                commonFormError.value = result.errorMessage ?? "Не удалось авторизоваться";
+            } else if (result.data) {
+                setInfo(result.data.accessToken);
+                emit("loginSuccess");
+            }
+        });
     }
 };
 </script>
@@ -50,10 +49,8 @@ const loginSubmit = () => {
         <template #title>Вход в ваш аккаунт</template>
 
         <template #inputs>
-            <MyInput id="email" type="email" label="E-mail" placeholder="Введите значение" :error="formErrors.email"
-                v-model="formValues.email" />
-            <MyInput id="password" type="password" label="Пароль" placeholder="Введите пароль"
-                :error="formErrors.password" v-model="formValues.password" />
+            <MyInput id="email" type="email" label="E-mail" placeholder="Введите значение" :error="formErrors.email" v-model="formValues.email" />
+            <MyInput id="password" type="password" label="Пароль" placeholder="Введите пароль" :error="formErrors.password" v-model="formValues.password" />
         </template>
 
         <template #actions>

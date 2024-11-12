@@ -1,5 +1,6 @@
+import { userInfoStore } from "../store";
 import { RequestParams, ResponseResult } from "../types/requestTypes";
-import { getInfo } from "./tokenMethods";
+import { getInfo, removeInfo } from "./tokenMethods";
 
 const baseURL = "https://dist.nd.ru";
 
@@ -26,10 +27,15 @@ export const sendRequest = async (endpoint: string, method: string, useAuth: boo
 			result.data = response.data;
 		})
 		.catch((error) => {
-			const message = error.response.data.message;
-			result.hasError = true;
-			result.status = error.status;
-			result.errorMessage = typeof message === "string" ? message : message[0];
+			if (error.status === 401) {
+				userInfoStore().userInfo = null;
+				removeInfo();
+			} else {
+				const message = error.response.data.message;
+				result.hasError = true;
+				result.status = error.status;
+				result.errorMessage = typeof message === "string" ? message : message[0];
+			}
 		});
 
 	return result;

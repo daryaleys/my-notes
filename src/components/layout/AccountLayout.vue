@@ -3,24 +3,45 @@ import InlineSvg from "vue-inline-svg";
 import MyButton from "../UI/MyButton.vue";
 import addIcon from "/src/assets/icons/add.svg?url";
 import SingleNote from "../UI/SingleNote.vue";
-import { Note } from "../../types/noteTypes";
+import { Note } from "../../types/noteType";
 import { sendRequest } from "../../helpers/requests";
 import { ResponseResult } from "../../types/requestTypes";
+import { onMounted, ref } from "vue";
+import MyModal from "../UI/MyModal.vue";
+import AddNoteForm from "../forms/AddNoteForm.vue";
 
-const emit = defineEmits(['openModal', 'deleteNote', 'authorizationRequired'])
+const modalOpened = ref<boolean>(false);
 
-defineProps<{ noteList: Note[], getNotesError: string }>();
+const noteList = ref<Note[]>([]);
+const getNotesError = ref<string>("");
+
+const getUserNotes = () => {
+    sendRequest("/api/notes", "GET", true).then((result: ResponseResult) => {
+        if (!result.hasError && result.data) {
+            noteList.value = result.data as Note[];
+        } else {
+            getNotesError.value = "Не удалось загрузить заметки. Пожалуйста, попробуйте обновить страницу";
+        }
+    });
+};
+
+const addNote = (note: Note) => {
+    modalOpened.value = false;
+    noteList.value.push(note);
+};
 
 const deleteNote = (id: number) => {
     sendRequest(`/api/notes/${id}`, "DELETE", true)
         .then((result: ResponseResult) => {
-            if (result.status === 401) {
-                emit('authorizationRequired');
-            } else if (!result.hasError) {
-                emit('deleteNote', id);
+            if (!result.hasError) {
+                noteList.value = noteList.value.filter((note) => note.id !== id);
             }
         })
 }
+
+onMounted(() => {
+    getUserNotes();
+})
 </script>
 
 <template>
@@ -33,10 +54,14 @@ const deleteNote = (id: number) => {
             </TransitionGroup>
         </div>
 
-        <MyButton btnType="round" class="account__add-btn" @click="$emit('openModal', 'addNote')">
-            <inline-svg :src="addIcon" width="20" height="20" aria-hidden="true" class="user-icon"></inline-svg>
+        <MyButton btnType="round" class="account__add-btn" @click="modalOpened = true">
+            <inline-svg :src="addIcon" width="20" height="20" aria-hidden="true"></inline-svg>
         </MyButton>
     </div>
+
+    <MyModal v-model="modalOpened">
+        <AddNoteForm @addNote="addNote" />
+    </MyModal>
 </template>
 
 <style scoped>

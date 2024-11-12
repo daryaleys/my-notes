@@ -1,5 +1,3 @@
-export const formContent = ["login", "register", "addNote"];
-
 export type LoginForm = {
 	email: string;
 	password: string;

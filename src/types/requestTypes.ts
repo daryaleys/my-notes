@@ -5,9 +5,7 @@ export type RequestParams = {
 	method: string;
 	baseURL: string;
 	data: LoginForm | RegisterForm | AddNoteForm;
-	headers?: {
-		Authorization: string;
-	};
+	headers?: any;
 };
 
 export type ResponseResult = {
